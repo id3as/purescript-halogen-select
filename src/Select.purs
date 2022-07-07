@@ -10,7 +10,7 @@ import Prelude
 import Control.Monad.Free (liftF)
 import Data.Const (Const)
 import Data.Maybe (Maybe(..), fromMaybe)
-import Data.Symbol (SProxy(..))
+import Type.Proxy (Proxy(..))
 import Data.Time.Duration (Milliseconds)
 import Data.Traversable (for_, traverse, traverse_)
 import Effect.Aff (Fiber, delay, error, forkAff, killFiber)
@@ -116,7 +116,7 @@ type Input st =
   }
 
 type Component query slots input msg m =
-  H.Component HH.HTML (Query query slots) input msg m
+  H.Component (Query query slots) input msg m
 
 type ComponentHTML action slots m =
   H.ComponentHTML (Action action) slots m
@@ -184,7 +184,7 @@ component
   => Row.Lacks "highlightedIndex" st
   => (input -> Input st)
   -> Spec st query action slots input msg m
-  -> H.Component HH.HTML (Query query slots) input msg m
+  -> H.Component (Query query slots) input msg m
 component mkInput spec = H.mkComponent
   { initialState: initialState <<< mkInput
   , render: spec.render
@@ -201,11 +201,11 @@ component mkInput spec = H.mkComponent
   initialState = Builder.build pipeline
     where
     pipeline =
-      Builder.modify (SProxy :: _ "search") (fromMaybe "")
-        >>> Builder.modify (SProxy :: _ "debounceTime") (fromMaybe mempty)
-        >>> Builder.insert (SProxy :: _ "debounceRef") Nothing
-        >>> Builder.insert (SProxy :: _ "visibility") Off
-        >>> Builder.insert (SProxy :: _ "highlightedIndex") Nothing
+      Builder.modify (Proxy :: _ "search") (fromMaybe "")
+        >>> Builder.modify (Proxy :: _ "debounceTime") (fromMaybe mempty)
+        >>> Builder.insert (Proxy :: _ "debounceRef") Nothing
+        >>> Builder.insert (Proxy :: _ "visibility") Off
+        >>> Builder.insert (Proxy :: _ "highlightedIndex") Nothing
 
 handleQuery
   :: forall st query action slots msg m a
